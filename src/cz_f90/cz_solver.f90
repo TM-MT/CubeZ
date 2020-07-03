@@ -665,6 +665,14 @@ end subroutine pcr_rb
 !********************************************************************************
 subroutine pcr (sz, idx, g, pn, x, msk, rhs, a, c, d, a1, c1, d1, omg, res, flop)
 implicit none
+interface
+  subroutine SGTSV(N, NRHS, DL, D, DU, B, LDB, INFO)
+    integer :: N, NRHS, LDB, INFO
+    real, dimension(3)    :: DL, DU
+    real, dimension(4)    :: D
+    real, dimension(4, 1) :: B
+  end subroutine
+end interface
 !args
 integer, dimension(3)                                  ::  sz
 integer, dimension(0:5)                                ::  idx
@@ -677,9 +685,15 @@ integer                                  ::  i, j, k, kl, km, kr, s, p
 integer                                  ::  ist, ied, jst, jed, kst, ked
 real, dimension(1-g:sz(3)+g)             ::  a, c, d, a1, c1, d1
 real                                     ::  r, ap, cp, e, pp, dp, res1
-real                                     ::  jj, dd1, dd2, dd3, dd4, aa2, aa3, aa4, cc1, cc2, cc3
-real                                     ::  inv_detA, detA1, detA2, detA3, detA4
+! for lapack.dgtsv
+integer :: n, nrhs, ldb, info
+real, dimension(3)    :: dl, du
+real, dimension(4)    :: diag
+real, dimension(4, 1) :: b
 
+n = 4
+nrhs = 1
+ldb = 4
 
 ist = idx(0)
 ied = idx(1)
@@ -694,8 +708,8 @@ r = 1.0/6.0
 flop = flop + dble(          &
 (jed-jst+1)*(ied-ist+1)* ( &
 (ked-kst+1)* 6.0        &  ! Source
-+ (ked-kst+1)*(pn-2)*74.0 & ! PCR4x4
-+ 2**(pn-1)*9.0                 &
++ (ked-kst+1)*(pn-2)*14.0 & ! PCR4x4
++ 2**(pn-2)*0                 &
 + (ked-kst+1)*6.0         &  ! Relaxation
 + 6.0 )                 &  ! BC
 )
@@ -710,9 +724,8 @@ flop = flop + dble(          &
 #else
 !$OMP PARALLEL reduction(+:res1) &
 !$OMP private(kl, km, kr, ap, cp, e, s, p, k, pp, dp) &
-!$OMP private(jj, dd1, dd2, aa2, aa3, aa4, cc1, cc2, cc3) &
 !$OMP private(a, c, d, a1, c1, d1) &
-!$OMP private(inv_detA, detA1, detA2, detA3, detA4)
+!$OMP private(dl, diag, du, b, info)
 !$OMP DO SCHEDULE(static) Collapse(2)
 #endif
 do j=jst, jed
@@ -805,42 +818,25 @@ kr = min(k+3*s, ked+1)
 ! 0   & aa3 & 1   & cc3 \\
 ! 0   & 0   & aa4 & 1   \\
 ! \end{pmatrix}
-cc1 = c(k)
-cc2 = c(kl)
-cc3 = c(km)
-aa2 = a(kl)
-aa3 = a(km)
-aa4 = a(kr)
+dl = (/ a(kl), a(km), a(kr) /)
+diag  = (/ 1.   , 1.   , 1.   , 1. /)
+du = (/ c(k) , c(kl), c(km) /)
 
-! (dd1, dd2, dd3, dd4 ) = ( d(k) & d(kl) & d(km) & d(kr) )
-dd1 = d(k)
-dd2 = d(kl)
-dd3 = d(km)
-dd4 = d(kr)
+b = reshape( (/ d(k), d(kl), d(km), d(kr) /), shape(b) )
 
-! 1.0 / |A|
-inv_detA= 1.0 / (1.0 - aa4*cc3 - aa3*cc2 - aa2*cc1*(1.0 - cc3*aa4))
+call SGTSV(n, nrhs, dl, diag, du, b, ldb, info)
 
-! |A_i|
-! A_i = A の第 i-列 (i = 1, 2, …, n) を系の右辺である d で置き換えて得られる行列
-detA1 = -cc3*(aa4*dd1 + cc1*cc2*dd4 - aa4*cc1*dd2) &
-+       dd1 + cc1*cc2*dd3 - aa3*cc2*dd1 - cc1*dd2
+if (info==0) then
+  d1(k)  = b(1, 1)
+  d1(kl) = b(2, 1)
+  d1(km) = b(3, 1)
+  d1(kr) = b(4, 1)
+else if (info < 0) then
+  print *, info * (-1), "th argument had an illegal value"
+else
+  print *, "U(", info, info, ") is exactly zero."
+end if
 
-detA2 = dd2 + cc2*cc3*dd4 - aa4*cc3*dd2 - cc2*dd3 &
--       aa2*(dd1 - aa4*cc3*dd1)
-
-detA3 = dd3 - cc3*dd4 - aa3*dd2 &
--       aa2*(cc1*dd3 - cc1*cc3*dd4 - aa3*dd1)
-
-detA4 = dd4 + aa3*aa4*dd2 - aa4*dd3 - aa3*cc2*dd4 &
--       aa2*(cc1*dd4 + aa3*aa4*dd1 - aa4*cc1*dd3)
-
-
-! Cramer's rule
-d1(k)  = detA1 * inv_detA
-d1(kl) = detA2 * inv_detA
-d1(km) = detA3 * inv_detA
-d1(kr) = detA4 * inv_detA
 end do
 
 
