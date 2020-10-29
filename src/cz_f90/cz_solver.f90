@@ -1251,6 +1251,14 @@ end subroutine pcr_esa
 !********************************************************************************
 subroutine pcr_rb_esa (sz, idx, g, pn, ofst, color, s, x, msk, rhs, a, c, d, a1, c1, d1, omg, res, flop)
 implicit none
+interface
+  subroutine SGTSV(N, NRHS, DL, D, DU, B, LDB, INFO)
+    integer :: N, NRHS, LDB, INFO
+    real, dimension(3)    :: DL, DU
+    real, dimension(4)    :: D
+    real, dimension(4, 1) :: B
+  end subroutine
+end interface
 !args
 integer, dimension(3)                                  ::  sz
 integer, dimension(0:5)                                ::  idx
@@ -1259,12 +1267,20 @@ real, dimension(1-g:sz(3)+g, 1-g:sz(1)+g, 1-g:sz(2)+g) ::  x, msk, rhs
 real                                                   ::  omg
 double precision                                       ::  res, flop
 ! work
-integer                                  ::  i, j, k, p, color, ip, ofst, sq, s
+integer                                  ::  i, j, k, kl, km, kr, p, color, ip, ofst, sq, s
 integer                                  ::  ist, ied, jst, jed, kst, ked
 real, dimension(-1:sz(3)+2)              ::  a1, c1, d1
 real, dimension(idx(4)-s:idx(5)+s)       ::  a, c, d
 real                                     ::  r, ap, cp, e, pp, dp, res1
-real                                     ::  jj, dd1, dd2, aa2, cc1, cc2, f1, f2
+! for lapack.dgtsv
+integer :: n, nrhs, ldb, info
+real, dimension(3)    :: dl, du
+real, dimension(4)    :: diag
+real, dimension(4, 1) :: b
+
+n = 4
+nrhs = 1
+ldb = 4
 
 ist = idx(0)
 ied = idx(1)
@@ -1280,7 +1296,7 @@ flop = flop + dble(          &
 (jed-jst+1)*(ied-ist+1)* ( &
 (ked-kst+1)* 6.0        &  ! Source
 + (ked-kst+1)*(pn-1)*14.0 &  ! PCR
-+ 2**(pn-1)*9.0                 &
++ 2**(pn-2)*9.0                 &
 + (ked-kst+1)*6.0         &  ! Relaxation
 + 6.0 )                 &  ! BC
 ) * 0.5
@@ -1296,8 +1312,8 @@ ip = ofst + color
 !$acc& private(jj, dd1, dd2, aa2, cc1, cc2, f1, f2)
 #else
 !$OMP PARALLEL reduction(+:res1) &
-!$OMP private(ap, cp, e, sq, p, k, pp, dp) &
-!$OMP private(jj, dd1, dd2, aa2, cc1, cc2, f1, f2) &
+!$OMP private(kl, km, kr, ap, cp, e, sq, p, k, pp, dp) &
+!$OMP private(dl, diag, du, b, info) &
 !$OMP private(a1, c1, d1) &
 !$OMP firstprivate(a, c, d)
 !$OMP DO SCHEDULE(static) collapse(2)
@@ -1310,15 +1326,26 @@ if(mod(i+j,2) /= color) cycle
 
 
 ! Reflesh coef. due to override
-!a(kst) = 0.0
+do k=kst-s, kst
+a(k) = 0.0
+end do
 do k=kst+1, ked
 a(k) = -r
 end do
+do k=ked+1, ked+s
+a(k) = 0.0
+end do
 
+do k=kst-s, kst-1
+c(k) = 0.0
+end do
 do k=kst, ked-1
 c(k) = -r
 end do
-!c(ked) = 0.0
+do k=ked, ked+s
+c(k) = 0.0
+end do
+
 
 ! Source
 !dir$ vector aligned
@@ -1336,9 +1363,9 @@ d(kst) = ( d(kst) + x(kst-1, i, j) * r ) * msk(kst, i, j)
 d(ked) = ( d(ked) + x(ked+1, i, j) * r ) * msk(ked, i, j)
 
 
-! PCR  最終段の一つ手前で停止
+! PCR  最終段の2つ手前で停止
 !$acc loop seq
-do p=1, pn-1
+do p=1, pn-2
 sq = 2**(p-1)
 
 !dir$ vector aligned
@@ -1364,22 +1391,35 @@ end do ! p反復
 
 
 ! 最終段の反転
-sq = 2**(pn-1)
+sq = 2**(pn-2)
 
 !dir$ vector aligned
 !dir$ simd
 !NEC$ IVDEP
 !$acc loop independent
 do k = kst, kst+sq-1
-cc1 = c(k)
-aa2 = a(k+sq)
-f1  = d(k)
-f2  = d(k+sq)
-jj  = 1.0 / (1.0 - aa2 * cc1)
-dd1 = (f1 - cc1 * f2) * jj
-dd2 = (f2 - aa2 * f1) * jj
-d1(k   ) = dd1
-d1(k+sq) = dd2
+kl = k + sq
+km = k + 2*sq
+kr = k + 3*sq
+
+dl = (/ a(kl), a(km), a(kr) /)
+diag  = (/ 1.   , 1.   , 1.   , 1. /)
+du = (/ c(k) , c(kl), c(km) /)
+b = reshape( (/ d(k), d(kl), d(km), d(kr) /), shape(b) )
+
+call SGTSV(n, nrhs, dl, diag, du, b, ldb, info)
+
+if (info==0) then
+  d1(k)  = b(1, 1)
+  d1(kl) = b(2, 1)
+  d1(km) = b(3, 1)
+  d1(kr) = b(4, 1)
+else if (info < 0) then
+  print *, info * (-1), "th argument had an illegal value"
+else
+  print *, "U(", info, info, ") is exactly zero."
+end if
+
 end do
 
 
