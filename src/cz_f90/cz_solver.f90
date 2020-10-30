@@ -1393,8 +1393,6 @@ end do ! p反復
 ! 最終段の反転
 sq = 2**(pn-2)
 
-!dir$ vector aligned
-!dir$ simd
 !NEC$ IVDEP
 !$acc loop independent
 do k = kst, kst+sq-1
