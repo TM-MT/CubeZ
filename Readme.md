@@ -17,7 +17,7 @@ CubeZ is a platform for testing iterative solvers.
 - PMlib
 - PAPI (Optional)
 - CBrick (In case of parallel)
-
+- LAPACK (= 3.9.0)
 
 ## How to build
 
