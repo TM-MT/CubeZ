@@ -19,7 +19,18 @@ set(cz_files
        cz_maf.f90
 )
 
+
+# Read environment variable `LAPACK_DIR` 
+# assume `LAPACK_DIR` contains `liblapack.a` and `libblas.a`
+if (DEFINED ENV{LAPACK_DIR})
+    set(LAPACK_DIR $ENV{LAPACK_DIR})
+    message(STATUS "LAPACK_DIR: " $LAPACK_DIR)
+else()
+    message(FATAL_ERROR "ENVIRONMENT VARIABLE `LAPACK_DIR` NOT DEFINED")
+endif()
+
 add_library(FCORE STATIC ${cz_files})
+target_link_libraries(FCORE ${LAPACK_DIR}/liblapack.a ${LAPACK_DIR}/libblas.a )
 
 if(with_ACC)
   if(CMAKE_CXX_COMPILER_ID STREQUAL "PGI")

@@ -229,9 +229,6 @@ if(enable_VectorReduction STREQUAL "ON")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -D_SVR")
 endif()
 
-# Include LAPACK
-SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -llapack -lblas")
-set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -llapack -lblas")
 
 #######
 # Display options
