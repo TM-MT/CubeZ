@@ -1,9 +1,4 @@
-# 1 "./src/cz_f90/nvtx.f90"
-# 1 "<built-in>"
-# 1 "<command-line>"
-# 1 "./src/cz_f90/nvtx.f90"
 module nvtx
-# 74 "./src/cz_f90/nvtx.f90"
   implicit none
 
 contains

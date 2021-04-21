@@ -1,7 +1,3 @@
-# 1 "./src/cz_f90/cz_solver.f90"
-# 1 "<built-in>"
-# 1 "<command-line>"
-# 1 "./src/cz_f90/cz_solver.f90"
 !###################################################################################
 !#
 !# CubeZ
@@ -445,7 +441,6 @@ flop = flop + 18.0d0*0.5d0  &
      * dble(ked-kst+1)
 
 
-# 453 "./src/cz_f90/cz_solver.f90"
 !$OMP PARALLEL REDUCTION(+:res1) &
 !$OMP PRIVATE(pp, bb, ss, dp, pn)
 

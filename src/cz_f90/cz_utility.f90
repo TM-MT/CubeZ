@@ -1,7 +1,3 @@
-# 1 "./src/cz_f90/cz_utility.f90"
-# 1 "<built-in>"
-# 1 "<command-line>"
-# 1 "./src/cz_f90/cz_utility.f90"
 !###################################################################################
 !#
 !# CubeZ
@@ -34,7 +30,6 @@ kx = sz(3)
 nn = 0
 rtime = 0.0
 
-# 45 "./src/cz_f90/cz_utility.f90"
 
 return
 end subroutine fileout_t
