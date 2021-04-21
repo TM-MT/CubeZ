@@ -1,7 +1,3 @@
-# 1 "./src/cz_f90/cz_maf.f90"
-# 1 "<built-in>"
-# 1 "<command-line>"
-# 1 "./src/cz_f90/cz_maf.f90"
 !###################################################################################
 !#
 !# CubeZ
@@ -342,7 +338,6 @@ flop = flop + 66.0d0*0.5d0  &
 
 
 
-# 353 "./src/cz_f90/cz_maf.f90"
 !$OMP PARALLEL DO SCHEDULE(static) COLLAPSE(2) &
 
 
@@ -483,7 +478,6 @@ res1 = 0.0
 
 
 
-# 501 "./src/cz_f90/cz_maf.f90"
 !$OMP PARALLEL &
 
 
@@ -705,7 +699,6 @@ flop = flop + dble(           &
 
 
 
-# 730 "./src/cz_f90/cz_maf.f90"
 !$OMP PARALLEL &
 
 
@@ -1141,7 +1134,6 @@ flop = flop + dble(           &
 )                          &
 )
 
-# 1173 "./src/cz_f90/cz_maf.f90"
 !$OMP PARALLEL &
 
 
@@ -1358,7 +1350,6 @@ res1 = 0.0
 
 
 
-# 1397 "./src/cz_f90/cz_maf.f90"
 !$OMP PARALLEL &
 
 

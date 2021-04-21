@@ -1,9 +1,3 @@
-# 1 "./src/cz_f90/obsolete.f90"
-# 1 "<built-in>"
-# 1 "<command-line>"
-# 1 "./src/cz_f90/obsolete.f90"
-
-
 !> ********************************************************************
 !! @brief TDMA
 !! @param [in]     nx   配列長
