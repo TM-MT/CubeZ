@@ -39,7 +39,13 @@ end subroutine fileout_t
 !> *******************************
 subroutine exact_t (sz, g, e, dh, org)
 implicit none
-include 'cz_fparam.fi'
+INTEGER I_MINUS, J_MINUS, K_MINUS, I_PLUS, J_PLUS, K_PLUS
+PARAMETER ( I_MINUS = 0 )
+PARAMETER ( I_PLUS  = 1 )
+PARAMETER ( J_MINUS = 2 )
+PARAMETER ( J_PLUS  = 3 )
+PARAMETER ( K_MINUS = 4 )
+PARAMETER ( K_PLUS  = 5 )
 integer                                                ::  i, j, k, ix, jx, kx, g
 integer, dimension(3)                                  ::  sz
 real, dimension(3)                                     ::  org
