@@ -1,3 +1,7 @@
+# 1 "./src/cz_f90/cz_utility.f90"
+# 1 "<built-in>"
+# 1 "<command-line>"
+# 1 "./src/cz_f90/cz_utility.f90"
 !###################################################################################
 !#
 !# CubeZ
@@ -30,18 +34,7 @@ kx = sz(3)
 nn = 0
 rtime = 0.0
 
-#if _aurora_==1
-
-open (unit=22, file=fname, form='unformatted')
-write (22) 1, 1
-write (22) ix, jx, kx
-write (22) org(1), org(2), org(3)
-write (22) dh, dh, dh
-write (22) nn, rtime
-write (22) (((s(k,i,j),i=1,ix),j=1,jx),k=1,kx)
-close (unit=22)
-
-#endif
+# 45 "./src/cz_f90/cz_utility.f90"
 
 return
 end subroutine fileout_t

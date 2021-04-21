@@ -1,3 +1,7 @@
+# 1 "./src/cz_f90/cz_maf.f90"
+# 1 "<built-in>"
+# 1 "<command-line>"
+# 1 "./src/cz_f90/cz_maf.f90"
 !###################################################################################
 !#
 !# CubeZ
@@ -155,9 +159,9 @@ ked = idx(5)
 
 res1 = 0.0
 
-#ifdef _SVR
-tmp = 0.0
-#endif
+
+
+
 
 flop = flop + 66.0d0  &
 * dble(ied-ist+1) &
@@ -165,26 +169,26 @@ flop = flop + 66.0d0  &
 * dble(ked-kst+1)
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop collapse(3) reduction(+:res1)
-#else
+
+
+
+
 !$OMP PARALLEL &
-#ifdef _SVR
-!$OMP REDUCTION(+:tmp) &
-#else
+
+
+
 !$OMP REDUCTION(+:res1) &
-#endif
+
 !$OMP PRIVATE(rp, pp, bb, dd, dp, pn) &
 !$OMP PRIVATE(XG, YE, ZT, XGG, YEE, ZTT) &
 !$OMP PRIVATE(GX, EY, TZ, YJA, YJAI) &
 !$OMP PRIVATE(C1, C2, C3, C7, C8, C9)
-#ifdef __NEC__
-!$OMP DO SCHEDULE(static)
-#else
+
+
+
 !$OMP DO SCHEDULE(static) COLLAPSE(2)
-#endif
-#endif
+
+
 do j = jst, jed
 do i = ist, ied
 do k = kst, ked
@@ -228,33 +232,33 @@ dp = ( rp / dd - pp ) * omg
 pn = pp + dp
 wk2(k,i,j) = pn
 
-#ifdef _SVR
-tmp(k) = tmp(k) + dp * dp ! 30
-#else
+
+
+
 res1 = res1 + dp * dp ! 30
-#endif
+
 
 enddo
 enddo
 enddo
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO NOWAIT
-#endif
 
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop collapse(3)
-#else
-#ifdef __NEC__
-!$OMP DO SCHEDULE(static)
-#else
+
+
+
+
+
+
+
+
 !$OMP DO SCHEDULE(static) COLLAPSE(2)
-#endif
-#endif
+
+
 do j = jst, jed
 do i = ist, ied
 do k = kst, ked
@@ -262,19 +266,19 @@ p(k,i,j)=wk2(k,i,j)
 end do
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO
 !$OMP END PARALLEL
-#endif
 
 
-#ifdef _SVR
-do k = kst, ked
-  res1 = res1 + tmp(k)
-end do
-#endif
+
+
+
+
+
+
 
 res = res + real(res1, kind=8)
 
@@ -320,9 +324,9 @@ real, dimension(-1:sz(3)+2)                            ::  Z, tmp
 kp = ofst+color
 res1 = 0.0
 
-#ifdef _SVR
-tmp = 0.0
-#endif
+
+
+
 
 ist = idx(0)
 ied = idx(1)
@@ -338,25 +342,14 @@ flop = flop + 66.0d0*0.5d0  &
 
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent gang reduction(+:res1)
-do j=jst,jed
-!$acc loop independent gang reduction(+:res1)
-do i=ist,ied
-!$acc loop independent vector(128) reduction(+:res1)
-do k=kst+mod(i+j+kp,2), ked, 2
-#else
-#ifdef __NEC__
-!$OMP PARALLEL DO SCHEDULE(static) COLLAPSE(2) & ! ここはcollapseを入れた方がよい
-#else
+# 353 "./src/cz_f90/cz_maf.f90"
 !$OMP PARALLEL DO SCHEDULE(static) COLLAPSE(2) &
-#endif
-#ifdef _SVR
-!$OMP REDUCTION(+:tmp) &
-#else
+
+
+
+
 !$OMP REDUCTION(+:res1) &
-#endif
+
 !$OMP PRIVATE(rp, pp, bb, dd, dp, pn) &
 !$OMP PRIVATE(XG, YE, ZT, XGG, YEE, ZTT) &
 !$OMP PRIVATE(GX, EY, TZ, YJA, YJAI) &
@@ -369,7 +362,7 @@ do i=ist,ied
 !NEC$ IVDEP
 !pgi$ vector
 do k=kst+mod(i+j+kp,2), ked, 2
-#endif
+
 
 pp = p(k,i,j)
 bb = b(k,i,j)
@@ -412,25 +405,25 @@ dp = ( rp / dd - pp ) * omg
 pn = pp + dp
 P(k,i,j) = pn
 
-#ifdef _SVR
-tmp(k) = tmp(k) + dp * dp ! 30
-#else
+
+
+
 res1 = res1 + dp * dp ! 30
-#endif
+
 
 end do
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#endif
+
+
+
 !$OMP END PARALLEL DO
 
-#ifdef _SVR
-do k = kst, ked
-res1 = res1 + tmp(k)
-end do
-#endif
+
+
+
+
+
 
 res = res + real(res1, kind=8)
 
@@ -485,31 +478,24 @@ flop = flop + dble(           &
 ip = ofst + color
 res1 = 0.0
 
-#ifdef _SVR
-tmp = 0.0
-#endif
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent collapse(2) gang reduction(+:res1) &
-!$acc& private(a, c, d, aw, cw, dw) &
-!$acc& private(kl, kr, ap, cp, e, s, p, k, pp, dp) &
-!$acc& private(jj, dd1, dd2, aa2, aa3, cc1, cc2, f1, f2, f3) &
-!$acc& private(C1, C2, C7, C8, GX, EY, TZ, ZTT)
-#else
+
+
+
+# 501 "./src/cz_f90/cz_maf.f90"
 !$OMP PARALLEL &
-#ifdef _SVR
-!$OMP REDUCTION(+:tmp) &
-#else
+
+
+
 !$OMP REDUCTION(+:res1) &
-#endif
+
 !$OMP private(kl, kr, ap, cp, e, s, p, k, pp, dp) &
 !$OMP private(jj, dd1, dd2, aa2, aa3, cc1, cc2, f1, f2, f3) &
 !$OMP private(a, c, d, aw, cw, dw) &
 !$OMP private(C1, C2, C7, C8, GX, EY, TZ, ZTT)
 !$OMP DO SCHEDULE(static) collapse(2)
-#endif
+
 do j=jst, jed
 do i=ist, ied
 if(mod(i+j,2) /= color) cycle
@@ -639,28 +625,28 @@ do k = kst, ked
   dp = ( dw(k) - pp ) * omg * msk(k, i, j)
   x(k, i, j) = pp + dp
 
-#ifdef _SVR
-tmp(k) = tmp(k) + dp * dp ! 30
-#else
+
+
+
 res1 = res1 + dp * dp ! 30
-#endif
+
 
 end do  !  >> 6 flops
 
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO
 !$OMP END PARALLEL
-#endif
 
-#ifdef _SVR
-do k = kst, ked
-res1 = res1 + tmp(k)
-end do
-#endif
+
+
+
+
+
+
 
 res = res + real(res1, kind=8)
 
@@ -714,31 +700,24 @@ flop = flop + dble(           &
 )                          &
 )
 
-#ifdef _SVR
-tmp = 0.0
-#endif
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent collapse(2) reduction(+:res1) &
-!$acc& private(a, c, d, aw, cw, dw) &
-!$acc& private(kl, kr, ap, cp, e, s, p, k, pp, dp) &
-!$acc& private(jj, dd1, dd2, aa2, aa3, cc1, cc2, f1, f2, f3) &
-!$acc& private(C1, C2, C7, C8, GX, EY, TZ, ZTT)
-#else
+
+
+
+# 730 "./src/cz_f90/cz_maf.f90"
 !$OMP PARALLEL &
-#ifdef _SVR
-!$OMP REDUCTION(+:tmp) &
-#else
+
+
+
 !$OMP REDUCTION(+:res1) &
-#endif
+
 !$OMP private(kl, kr, ap, cp, e, s, p, k, pp, dp) &
 !$OMP private(jj, dd1, dd2, aa2, aa3, cc1, cc2, f1, f2, f3) &
 !$OMP private(a, c, d, aw, cw, dw) &
 !$OMP private(C1, C2, C7, C8, GX, EY, TZ, ZTT)
 !$OMP DO SCHEDULE(static) collapse(2)
-#endif
+
 do j=jst, jed
 do i=ist, ied
 
@@ -863,28 +842,28 @@ pp =   x(k, i, j)
 dp = ( dw(k) - pp ) * omg * msk(k, i, j)
 x(k, i, j) = pp + dp
 
-#ifdef _SVR
-tmp(k) = tmp(k) + dp * dp ! 30
-#else
+
+
+
 res1 = res1 + dp * dp ! 30
-#endif
+
 
 end do  !  >> 6 flops
 
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO
 !$OMP END PARALLEL
-#endif
 
-#ifdef _SVR
-do k = kst, ked
-res1 = res1 + tmp(k)
-end do
-#endif
+
+
+
+
+
+
 
 res = res + real(res1, kind=8)
 
@@ -924,9 +903,9 @@ ked = idx(5)
 
 res1 = 0.0
 
-#ifdef _SVR
-tmp = 0.0
-#endif
+
+
+
 
 s = 2**(pn-1)
 
@@ -957,11 +936,11 @@ end do
 
 
 !$OMP PARALLEL &
-#ifdef _SVR
-!$OMP REDUCTION(+:tmp) &
-#else
+
+
+
 !$OMP REDUCTION(+:res1) &
-#endif
+
 !$OMP private(ap, cp, e, s, p, k, pp, dp) &
 !$OMP private(jj, dd1, dd2, aa2, aa3, cc1, cc2, f1, f2, f3) &
 !$OMP private(aw, cw, dw) &
@@ -1088,11 +1067,11 @@ pp =   x(k, i, j)
 dp = ( dw(k) - pp ) * omg * msk(k, i, j)
 x(k, i, j) = pp + dp
 
-#ifdef _SVR
-tmp(k) = tmp(k) + dp * dp ! 30
-#else
+
+
+
 res1 = res1 + dp * dp ! 30
-#endif
+
 
 end do  !  >> 6 flops
 
@@ -1101,11 +1080,11 @@ end do
 !$OMP END DO
 !$OMP END PARALLEL
 
-#ifdef _SVR
-do k = kst, ked
-res1 = res1 + tmp(k)
-end do
-#endif
+
+
+
+
+
 
 res = res + real(res1, kind=8)
 
@@ -1145,9 +1124,9 @@ ked = idx(5)
 
 res1 = 0.0
 
-#ifdef _SVR
-tmp = 0.0
-#endif
+
+
+
 
 flop = flop + dble(           &
 (jed-jst+1)*(ied-ist+1)* (  &
@@ -1162,27 +1141,20 @@ flop = flop + dble(           &
 )                          &
 )
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent collapse(2) reduction(+:res1) &
-!$acc& private(a, c, d, aw, cw, dw) &
-!$acc& private(ap, cp, e, sq, p, k, pp, dp) &
-!$acc& private(jj, dd1, dd2, aa2, aa3, cc1, cc2, f1, f2, f3) &
-!$acc& private(C1, C2, C7, C8, GX, EY, TZ, ZTT)
-#else
+# 1173 "./src/cz_f90/cz_maf.f90"
 !$OMP PARALLEL &
-#ifdef _SVR
-!$OMP REDUCTION(+:tmp) &
-#else
+
+
+
 !$OMP REDUCTION(+:res1) &
-#endif
+
 !$OMP private(ap, cp, e, sq, p, k, pp, dp) &
 !$OMP private(jj, dd1, dd2, aa2, aa3, cc1, cc2, f1, f2, f3) &
 !$OMP private(C1, C2, C7, C8, GX, EY, TZ, ZTT) &
 !$OMP private(aw, cw, dw) &
 !$OMP firstprivate(a, c, d)
 !$OMP DO SCHEDULE(static) Collapse(2)
-#endif
+
 do j=jst, jed
 do i=ist, ied
 
@@ -1305,29 +1277,29 @@ pp =   x(k, i, j)
 dp = ( dw(k) - pp ) * omg * msk(k, i, j)
 x(k, i, j) = pp + dp
 
-#ifdef _SVR
-tmp(k) = tmp(k) + dp * dp ! 30
-#else
+
+
+
 res1 = res1 + dp * dp ! 30
-#endif
+
 
 end do  !  >> 6 flops
 
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO
 !$OMP END PARALLEL
-#endif
 
 
-#ifdef _SVR
-do k = kst, ked
-res1 = res1 + tmp(k)
-end do
-#endif
+
+
+
+
+
+
 
 res = res + real(res1, kind=8)
 
@@ -1382,31 +1354,24 @@ flop = flop + dble(           &
 ip = ofst + color
 res1 = 0.0
 
-#ifdef _SVR
-tmp = 0.0
-#endif
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent collapse(2) reduction(+:res1) &
-!$acc& private(a, c, d, aw, cw, dw) &
-!$acc& private(ap, cp, e, sq, p, k, pp, dp) &
-!$acc& private(jj, dd1, dd2, aa2, aa3, cc1, cc2, f1, f2, f3) &
-!$acc& private(C1, C2, C7, C8, GX, EY, TZ, ZTT)
-#else
+
+
+
+# 1397 "./src/cz_f90/cz_maf.f90"
 !$OMP PARALLEL &
-#ifdef _SVR
-!$OMP REDUCTION(+:tmp) &
-#else
+
+
+
 !$OMP REDUCTION(+:res1) &
-#endif
+
 !$OMP private(ap, cp, e, sq, p, k, pp, dp) &
 !$OMP private(jj, dd1, dd2, aa2, aa3, cc1, cc2, f1, f2, f3) &
 !$OMP private(aw, cw, dw) &
 !$OMP firstprivate(a, c, d) &
 !$OMP private(C1, C2, C7, C8, GX, EY, TZ, ZTT)
 !$OMP DO SCHEDULE(static) collapse(2)
-#endif
+
 do j=jst, jed
 do i=ist, ied
 if(mod(i+j,2) /= color) cycle
@@ -1531,28 +1496,28 @@ pp =   x(k, i, j)
 dp = ( dw(k) - pp ) * omg * msk(k, i, j)
 x(k, i, j) = pp + dp
 
-#ifdef _SVR
-tmp(k) = tmp(k) + dp * dp ! 30
-#else
+
+
+
 res1 = res1 + dp * dp ! 30
-#endif
+
 
 end do  !  >> 6 flops
 
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO
 !$OMP END PARALLEL
-#endif
 
-#ifdef _SVR
-do k = kst, ked
-res1 = res1 + tmp(k)
-end do
-#endif
+
+
+
+
+
+
 
 res = res + real(res1, kind=8)
 

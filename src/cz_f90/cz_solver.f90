@@ -1,3 +1,7 @@
+# 1 "./src/cz_f90/cz_solver.f90"
+# 1 "<built-in>"
+# 1 "<command-line>"
+# 1 "./src/cz_f90/cz_solver.f90"
 !###################################################################################
 !#
 !# CubeZ
@@ -40,15 +44,15 @@ pi = 2.0*asin(1.0)
 
 ! ZMINUS Dirichlet
 if( nID(K_MINUS) < 0 ) then
-#ifdef _OPENACC
-!$acc kernels
-#else
-#ifdef __NEC__
-!$OMP DO SCHEDULE(static) PRIVATE(x, y)
-#else
+
+
+
+
+
+
 !$OMP DO SCHEDULE(static) COLLAPSE(2) PRIVATE(x, y)
-#endif
-#endif
+
+
 do j=1,jx
 do i=1,ix
 x = org(1) + dh*real(i-1)
@@ -56,25 +60,25 @@ y = org(2) + dh*real(j-1)
 p(1,i,j) = sin(pi*x)*sin(pi*y)
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO NOWAIT
-#endif
+
 endif
 
 
 ! ZPLUS Dirichlet
 if( nID(K_PLUS) < 0 ) then
-#ifdef _OPENACC
-!$acc kernels
-#else
-#ifdef __NEC__
-!$OMP DO SCHEDULE(static) PRIVATE(x, y)
-#else
+
+
+
+
+
+
 !$OMP DO SCHEDULE(static) COLLAPSE(2) PRIVATE(x, y)
-#endif
-#endif
+
+
 do j=1,jx
 do i=1,ix
 x = org(1) + dh*real(i-1)
@@ -82,107 +86,107 @@ y = org(2) + dh*real(j-1)
 p(kx,i,j) = sin(pi*x)*sin(pi*y)
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO
-#endif
+
 endif
 
 
 ! XMINUS
 if( nID(I_MINUS) < 0 ) then
-#ifdef _OPENACC
-!$acc kernels
-#else
-#ifdef __NEC__
-!$OMP DO SCHEDULE(static)
-#else
+
+
+
+
+
+
 !$OMP DO SCHEDULE(static) COLLAPSE(2)
-#endif
-#endif
+
+
 do k=1,kx
 do j=1,jx
 p(k,1,j) = 0.0 !p(2, j,k)
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO NOWAIT
-#endif
+
 endif
 
 
 ! XPLUS
 if( nID(I_PLUS) < 0 ) then
-#ifdef _OPENACC
-!$acc kernels
-#else
-#ifdef __NEC__
-!$OMP DO SCHEDULE(static)
-#else
+
+
+
+
+
+
 !$OMP DO SCHEDULE(static) COLLAPSE(2)
-#endif
-#endif
+
+
 do k=1,kx
 do j=1,jx
 p(k,ix,j) = 0.0 !p(ix-1,j,k)
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO
-#endif
+
 endif
 
 
 ! YMINUS
 if( nID(J_MINUS) < 0 ) then
-#ifdef _OPENACC
-!$acc kernels
-#else
-#ifdef __NEC__
-!$OMP DO SCHEDULE(static)
-#else
+
+
+
+
+
+
 !$OMP DO SCHEDULE(static) COLLAPSE(2)
-#endif
-#endif
+
+
 do k=1,kx
 do i=1,ix
 p(k,i,1) = 0.0 !p(i,2, k)
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO NOWAIT
-#endif
+
 endif
 
 
 ! YPLUS
 if( nID(J_PLUS) < 0 ) then
-#ifdef _OPENACC
-!$acc kernels
-#else
-#ifdef __NEC__
-!$OMP DO SCHEDULE(static)
-#else
+
+
+
+
+
+
 !$OMP DO SCHEDULE(static) COLLAPSE(2)
-#endif
-#endif
+
+
 do k=1,kx
 do i=1,ix
 p(k,i,jx) = 0.0 !p(i,jx-1,k)
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO
-#endif
+
 endif
 
 !$OMP END PARALLEL
@@ -318,19 +322,19 @@ flop = flop + 18.0  &
             * dble(ked-kst+1)
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop collapse(3) reduction(+:res1)
-#else
+
+
+
+
 !$OMP PARALLEL PRIVATE(pp, bb, ss, dp, pn) &
 !$OMP REDUCTION(+:res1)
 ! auroraはここにcollapseを入れると完全に並列化しない
-#ifdef __NEC__
-!$OMP DO SCHEDULE(static)
-#else
+
+
+
 !$OMP DO SCHEDULE(static) COLLAPSE(2)
-#endif
-#endif
+
+
 do j = jst, jed
 do i = ist, ied
 do k = kst, ked
@@ -349,23 +353,23 @@ do k = kst, ked
 end do
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO NOWAIT
-#endif
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop collapse(3)
-#else
-#ifdef __NEC__
-!$OMP DO SCHEDULE(static)
-#else
+
+
+
+
+
+
+
+
 !$OMP DO SCHEDULE(static) COLLAPSE(2)
-#endif
-#endif
+
+
 do j = jst, jed
 do i = ist, ied
 do k = kst, ked
@@ -373,12 +377,12 @@ do k = kst, ked
 end do
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO
 !$OMP END PARALLEL
-#endif
+
 
 
 res = res + real(res1, kind=8)
@@ -441,22 +445,14 @@ flop = flop + 18.0d0*0.5d0  &
      * dble(ked-kst+1)
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent gang reduction(+:res1)
-do j=jst,jed
-!$acc loop independent gang reduction(+:res1)
-do i=ist,ied
-!$acc loop independent vector(128) reduction(+:res1)
-do k=kst+mod(i+j+kp,2), ked, 2
-#else
+# 453 "./src/cz_f90/cz_solver.f90"
 !$OMP PARALLEL REDUCTION(+:res1) &
 !$OMP PRIVATE(pp, bb, ss, dp, pn)
-#ifdef __NEC__
-!$OMP DO SCHEDULE(static)
-#else
+
+
+
 !$OMP DO SCHEDULE(static) COLLAPSE(2)
-#endif
+
 do j=jst,jed
 do i=ist,ied
 !dir$ vector aligned
@@ -464,7 +460,7 @@ do i=ist,ied
 !NEC$ IVDEP
 !pgi$ vector
 do k=kst+mod(i+j+kp,2), ked, 2
-#endif
+
   pp = p(k,i,j)
   bb = b(k,i,j)
   ss = c1 * p(k  , i+1,j  ) &
@@ -480,12 +476,12 @@ do k=kst+mod(i+j+kp,2), ked, 2
 end do
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO
 !$OMP END PARALLEL
-#endif
+
 
 res = res + real(res1, kind=8)
 
@@ -533,17 +529,17 @@ flop = flop + dble(          &
 ip = ofst + color
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent collapse(2) gang private(a, c, d, a1, c1, d1) reduction(+:res)
-#else
+
+
+
+
 !$OMP PARALLEL &
 !$OMP reduction(+:res) &
 !$OMP private(kl, kr, ap, cp, e, s, p, k, pp, dp) &
 !$OMP private(jj, dd1, dd2, aa2, cc1, cc2, f1, f2) &
 !$OMP private(a, c, d, a1, c1, d1)
 !$OMP DO SCHEDULE(static) collapse(2)
-#endif
+
 do j=jst, jed
 do i=ist, ied
 if(mod(i+j,2) /= color) cycle
@@ -649,12 +645,12 @@ end do
 
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO
 !$OMP END PARALLEL
-#endif
+
 
 !res = res + real(res1, kind=8)
 
@@ -701,20 +697,20 @@ flop = flop + dble(          &
 )
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent collapse(2) reduction(+:res1) &
-!$acc& private(a, c, d, a1, c1, d1) &
-!$acc& private(kl, kr, ap, cp, e, s, p, k, pp, dp) &
-!$acc& private(jj, dd1, dd2, aa2, cc1, cc2, f1, f2)
-#else
+
+
+
+
+
+
+
 !$OMP PARALLEL reduction(+:res1) &
 !$OMP private(kl, km, kr, ap, cp, e, s, p, k, pp, dp) &
 !$OMP private(jj, dd1, dd2, dd3, dd4, aa2, aa3, aa4, cc1, cc2, cc3) &
 !$OMP private(a, c, d, a1, c1, d1) &
 !$OMP private(inv_detA, detA1, detA2, detA3, detA4)
 !$OMP DO SCHEDULE(static) Collapse(2)
-#endif
+
 do j=jst, jed
 do i=ist, ied
 
@@ -798,13 +794,13 @@ kl = min(k+  s, ked+1)
 km = min(k+2*s, ked+1)
 kr = min(k+3*s, ked+1)
 
-! A = \\
-! \begin{pmatrix}
-! 1   & cc1 & 0   & 0   \\
-! aa2 & 1   & cc2 & 0   \\
-! 0   & aa3 & 1   & cc3 \\
-! 0   & 0   & aa4 & 1   \\
-! \end{pmatrix}
+! A = \! \begin{pmatrix}
+
+! 1   & cc1 & 0   & 0   \! aa2 & 1   & cc2 & 0   \! 0   & aa3 & 1   & cc3 \! 0   & 0   & aa4 & 1   \! \end{pmatrix}
+
+
+
+
 cc1 = c(k)
 cc2 = c(kl)
 cc3 = c(km)
@@ -864,12 +860,12 @@ end do
 
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO
 !$OMP END PARALLEL
-#endif
+
 
 
 res = res + real(res1, kind=8)
@@ -1085,13 +1081,13 @@ flop = flop + dble(          &
 + 6.0 )                 &  ! BC
 )
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent collapse(2) gang reduction(+:res1) &
-!$acc& private(a, c, d, a1, c1, d1) &
-!$acc& private(ap, cp, e, sq, p, k, pp, dp) &
-!$acc& private(jj, dd1, dd2, aa2, cc1, cc2, f1, f2)
-#else
+
+
+
+
+
+
+
 !$OMP PARALLEL reduction(+:res1) &
 !$OMP private(ap, cp, e, sq, p, k, km, kl, kr, pp, dp) &
 !$OMP private(jj, dd1, dd2, dd3, dd4, aa2, aa3, aa4, cc1, cc2, cc3) &
@@ -1099,7 +1095,7 @@ flop = flop + dble(          &
 !$OMP private(inv_detA, detA1, detA2, detA3, detA4) &
 !$OMP firstprivate(a, c, d)
 !$OMP DO SCHEDULE(static) Collapse(2)
-#endif
+
 do j=jst, jed
 do i=ist, ied
 
@@ -1239,12 +1235,12 @@ end do
 
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO
 !$OMP END PARALLEL
-#endif
+
 
 res = res + real(res1, kind=8)
 
@@ -1296,13 +1292,13 @@ flop = flop + dble(          &
 ip = ofst + color
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent collapse(2) gang reduction(+:res1) &
-!$acc& private(a, c, d, a1, c1, d1) &
-!$acc& private(ap, cp, e, sq, p, k, pp, dp) &
-!$acc& private(jj, dd1, dd2, aa2, cc1, cc2, f1, f2)
-#else
+
+
+
+
+
+
+
 !$OMP PARALLEL reduction(+:res1) &
 !$OMP private(ap, cp, e, sq, p, k, km, kl, kr, pp, dp) &
 !$OMP private(jj, dd1, dd2, dd3, dd4, aa2, aa3, aa4, cc1, cc2, cc3) &
@@ -1310,7 +1306,7 @@ ip = ofst + color
 !$OMP private(inv_detA, detA1, detA2, detA3, detA4) &
 !$OMP firstprivate(a, c, d)
 !$OMP DO SCHEDULE(static) collapse(2)
-#endif
+
 do j=jst, jed
 do i=ist, ied
 if(mod(i+j,2) /= color) cycle
@@ -1451,12 +1447,12 @@ end do
 
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO
 !$OMP END PARALLEL
-#endif
+
 
 res = res + real(res1, kind=8)
 
@@ -1501,18 +1497,18 @@ flop = flop + dble(          &
 + 6.0 )                 &  ! BC
 )
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent collapse(3)
-#else
+
+
+
+
 !$OMP PARALLEL
 ! auroraはここにcollapseを入れると完全に並列化しない
-#ifdef __NEC__
-!$OMP DO SCHEDULE(static)
-#else
+
+
+
 !$OMP DO SCHEDULE(static) COLLAPSE(2)
-#endif
-#endif
+
+
 do j=jst, jed
 do i=ist, ied
 do k=kst, ked
@@ -1524,27 +1520,27 @@ do k=kst, ked
 end do
 end do
 end do ! 6 flops
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO
-#endif
 
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent collapse(2) gang reduction(+:res1) &
-!$acc& private(a, c, d, a1, c1, d1) &
-!$acc& private(ap, cp, e, sq, p, k, pp, dp) &
-!$acc& private(jj, dd1, dd2, aa2, cc1, cc2, f1, f2)
-#else
+
+
+
+
+
+
+
+
 !$OMP DO SCHEDULE(static) Collapse(2) reduction(+:res1) &
 !$OMP private(ap, cp, e, sq, p, k, pp, dp) &
 !$OMP private(jj, dd1, dd2, aa2, cc1, cc2, f1, f2) &
 !$OMP private(a1, c1, d1) &
 !$OMP firstprivate(a, c, d)
-#endif
+
 do j=jst, jed
 do i=ist, ied
 
@@ -1633,24 +1629,24 @@ end do
 
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO NOWAIT
-#endif
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent collapse(3)
-#else
+
+
+
+
+
 ! auroraはここにcollapseを入れると完全に並列化しない
-#ifdef __NEC__
-!$OMP DO SCHEDULE(static)
-#else
+
+
+
 !$OMP DO SCHEDULE(static) COLLAPSE(2)
-#endif
-#endif
+
+
 do j=jst, jed
 do i=ist, ied
 do k=kst, ked
@@ -1658,12 +1654,12 @@ x(k,i,j) = wrk(k,i,j)
 end do
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO
 !$OMP END PARALLEL
-#endif
+
 
 res = res + real(res1, kind=8)
 

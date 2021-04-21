@@ -1,3 +1,7 @@
+# 1 "./src/cz_f90/cz_blas.f90"
+# 1 "<built-in>"
+# 1 "<command-line>"
+# 1 "./src/cz_f90/cz_blas.f90"
 !###################################################################################
 !#
 !# CubeZ
@@ -43,21 +47,21 @@ kst = idx(4)
 ked = idx(5)
 
 ! スレッド同期のオーバーヘッド抑制のため，単一のparallel regionとする
-#ifndef _OPENACC
+
 !$OMP PARALLEL
-#endif
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop collapse(3)
-#else
-#ifdef __NEC__
-!$OMP DO SCHEDULE(static)
-#else
+
+
+
+
+
+
+
+
 !$OMP DO SCHEDULE(static) COLLAPSE(2)
-#endif
-#endif
+
+
 do j=1-g,jx+g
 do i=1-g,ix+g
 do k=1-g,kx+g
@@ -65,23 +69,23 @@ do k=1-g,kx+g
 end do
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO
-#endif
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop collapse(3)
-#else
-#ifdef __NEC__
-!$OMP DO SCHEDULE(static)
-#else
+
+
+
+
+
+
+
+
 !$OMP DO SCHEDULE(static) COLLAPSE(2)
-#endif
-#endif
+
+
 do j = jst, jed
 do i = ist, ied
 do k = kst, ked
@@ -89,15 +93,15 @@ do k = kst, ked
 end do
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
-!$OMP END DO
-#endif
 
-#ifndef _OPENACC
+
+
+!$OMP END DO
+
+
+
 !$OMP END PARALLEL
-#endif
+
 
 return
 end subroutine imask_k
@@ -121,16 +125,16 @@ jx = sz(2)
 kx = sz(3)
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop collapse(3)
-#else
-#ifdef __NEC__
-!$OMP PARALLEL DO SCHEDULE(static)
-#else
+
+
+
+
+
+
+
 !$OMP PARALLEL DO SCHEDULE(static) COLLAPSE(2)
-#endif
-#endif
+
+
 do j=1-g,jx+g
 do i=1-g,ix+g
 do k=1-g,kx+g
@@ -138,11 +142,11 @@ do k=1-g,kx+g
 end do
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END PARALLEL DO
-#endif
+
 
 
 return
@@ -167,16 +171,16 @@ jx = sz(2)
 kx = sz(3)
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop collapse(3)
-#else
-#ifdef __NEC__
-!$OMP PARALLEL DO SCHEDULE(static)
-#else
+
+
+
+
+
+
+
 !$OMP PARALLEL DO SCHEDULE(static) COLLAPSE(2)
-#endif
-#endif
+
+
 do j=1-g,jx+g
 do i=1-g,ix+g
 do k=1-g,kx+g
@@ -184,11 +188,11 @@ do k=1-g,kx+g
 end do
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END PARALLEL DO
-#endif
+
 
 
 return
@@ -214,16 +218,16 @@ jx = sz(2)
 kx = sz(3)
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop collapse(3)
-#else
-#ifdef __NEC__
-!$OMP PARALLEL DO SCHEDULE(static)
-#else
+
+
+
+
+
+
+
 !$OMP PARALLEL DO SCHEDULE(static) COLLAPSE(2)
-#endif
-#endif
+
+
 do j=1,jx
 do i=1,ix
 do k=1,kx
@@ -231,11 +235,11 @@ y(k,i,j) = x(k,i,j)
 end do
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END PARALLEL DO
-#endif
+
 
 
 return
@@ -281,16 +285,16 @@ flop = flop + 2.0d0    &
      * dble(ked-kst+1)
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop collapse(3)
-#else
-#ifdef __NEC__
-!$OMP PARALLEL DO SCHEDULE(static)
-#else
+
+
+
+
+
+
+
 !$OMP PARALLEL DO SCHEDULE(static) COLLAPSE(2)
-#endif
-#endif
+
+
 do j = jst, jed
 do i = ist, ied
 do k = kst, ked
@@ -298,11 +302,11 @@ do k = kst, ked
 end do
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END PARALLEL DO
-#endif
+
 
 return
 end subroutine blas_triad
@@ -344,17 +348,17 @@ flop = flop + 2.0d0    &
      * dble(ked-kst+1)
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent collapse(3) private(q) reduction(+:r)
-#else
-#ifdef __NEC__
-!$OMP PARALLEL DO SCHEDULE(static) &
-#else
+
+
+
+
+
+
+
 !$OMP PARALLEL DO SCHEDULE(static) COLLAPSE(2) &
-#endif
+
 !$OMP REDUCTION(+:r) PRIVATE(q)
-#endif
+
 do j = jst, jed
 do i = ist, ied
 do k = kst, ked
@@ -363,11 +367,11 @@ do k = kst, ked
 end do
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END PARALLEL DO
-#endif
+
 
 return
 end subroutine blas_dot1
@@ -410,16 +414,16 @@ flop = flop + 2.0d0    &
      * dble(ked-kst+1)
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent collapse(3) reduction(+:r)
-#else
-#ifdef __NEC__
-!$OMP PARALLEL DO SCHEDULE(static) REDUCTION(+:r)
-#else
+
+
+
+
+
+
+
 !$OMP PARALLEL DO SCHEDULE(static) COLLAPSE(2) REDUCTION(+:r)
-#endif
-#endif
+
+
 do j = jst, jed
 do i = ist, ied
 do k = kst, ked
@@ -427,11 +431,11 @@ do k = kst, ked
 end do
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END PARALLEL DO
-#endif
+
 
 return
 end subroutine blas_dot2
@@ -474,16 +478,16 @@ flop = flop + 4.0d0    &
      * dble(ked-kst+1)
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent collapse(3)
-#else
-#ifdef __NEC__
-!$OMP PARALLEL DO SCHEDULE(static)
-#else
+
+
+
+
+
+
+
 !$OMP PARALLEL DO SCHEDULE(static) COLLAPSE(2)
-#endif
-#endif
+
+
 do j = jst, jed
 do i = ist, ied
 do k = kst, ked
@@ -491,11 +495,11 @@ do k = kst, ked
 end do
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END PARALLEL DO
-#endif
+
 
 
 return
@@ -538,16 +542,16 @@ flop = flop + 4.0d0    &
      * dble(jed-jst+1) &
      * dble(ked-kst+1)
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent collapse(3)
-#else
-#ifdef __NEC__
-!$OMP PARALLEL DO SCHEDULE(static)
-#else
+
+
+
+
+
+
+
 !$OMP PARALLEL DO SCHEDULE(static) COLLAPSE(2)
-#endif
-#endif
+
+
 do j = jst, jed
 do i = ist, ied
 do k = kst, ked
@@ -555,11 +559,11 @@ do k = kst, ked
 end do
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END PARALLEL DO
-#endif
+
 
 
 return
@@ -610,16 +614,16 @@ flop = flop + 13.0d0   &
      * dble(ked-kst+1)
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent collapse(3) private(ss)
-#else
-#ifdef __NEC__
-!$OMP PARALLEL DO SCHEDULE(static) PRIVATE(ss)
-#else
+
+
+
+
+
+
+
 !$OMP PARALLEL DO SCHEDULE(static) COLLAPSE(2) PRIVATE(ss)
-#endif
-#endif
+
+
 do j = jst, jed
 do i = ist, ied
 do k = kst, ked
@@ -633,11 +637,11 @@ do k = kst, ked
 end do
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END PARALLEL DO
-#endif
+
 
 
 return
@@ -689,16 +693,16 @@ flop = flop + 14.0d0   &
      * dble(ked-kst+1)
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent collapse(3) private(ss)
-#else
-#ifdef __NEC__
-!$OMP PARALLEL DO SCHEDULE(static) PRIVATE(ss)
-#else
+
+
+
+
+
+
+
 !$OMP PARALLEL DO SCHEDULE(static) COLLAPSE(2) PRIVATE(ss)
-#endif
-#endif
+
+
 do j = jst, jed
 do i = ist, ied
 do k = kst, ked
@@ -712,11 +716,11 @@ do k = kst, ked
 end do
 end do
 end do
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END PARALLEL DO
-#endif
+
 
 
 return
@@ -765,19 +769,19 @@ flop = flop + 63.0d0   &
      * dble(ked-kst+1)
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent collapse(3)
-#else
-#ifdef __NEC__
-!$OMP PARALLEL DO &
-#else
+
+
+
+
+
+
+
 !$OMP PARALLEL DO Collapse(2) &
-#endif
+
 !$OMP PRIVATE(XG, YE, ZT, XGG, YEE, ZTT) &
 !$OMP PRIVATE(GX, EY, TZ, YJA, YJAI) &
 !$OMP PRIVATE(C1, C2, C3, C7, C8, C9)
-#endif
+
 do j = jst, jed
 do i = ist, ied
 do k = kst, ked
@@ -819,11 +823,11 @@ r(k,i,j) = ( b(k,i,j)                           &
 enddo
 enddo
 enddo
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END PARALLEL DO
-#endif
+
 
 
 
@@ -871,19 +875,19 @@ flop = flop + 63.0d0   &
      * dble(ked-kst+1)
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent collapse(3)
-#else
-#ifdef __NEC__
-!$OMP PARALLEL DO &
-#else
+
+
+
+
+
+
+
 !$OMP PARALLEL DO Collapse(2) &
-#endif
+
 !$OMP PRIVATE(XG, YE, ZT, XGG, YEE, ZTT) &
 !$OMP PRIVATE(GX, EY, TZ, YJA, YJAI) &
 !$OMP PRIVATE(C1, C2, C3, C7, C8, C9)
-#endif
+
 do j = jst, jed
 do i = ist, ied
 do k = kst, ked
@@ -925,11 +929,11 @@ ap(k,i,j) = (                                  &
 enddo
 enddo
 enddo
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END PARALLEL DO
-#endif
+
 
 
 return
@@ -969,21 +973,21 @@ kst = idx(4)
 ked = idx(5)
 
 
-#ifdef _OPENACC
-!$acc kernels
-!$acc loop independent collapse(3)
-#else
+
+
+
+
 !$OMP PARALLEL
-#ifdef __NEC__
-!$OMP DO &
-#else
+
+
+
 !$OMP DO Collapse(2) &
-#endif
+
 !$OMP PRIVATE(XG, YE, ZT, XGG, YEE, ZTT) &
 !$OMP PRIVATE(GX, EY, TZ, YJA, YJAI) &
 !$OMP PRIVATE(C1, C2, C3, C7, C8, C9) &
 !$OMP PRIVATE(s1, s2, s3, s4, s5, s6, s7, ss)
-#endif
+
 do j = jst, jed
 do i = ist, ied
 do k = kst, ked
@@ -1027,12 +1031,12 @@ pvt(k,i,j) = 1.0/ss
 enddo
 enddo
 enddo
-#ifdef _OPENACC
-!$acc end kernels
-#else
+
+
+
 !$OMP END DO
 !$OMP END PARALLEL
-#endif
+
 
 
 return
