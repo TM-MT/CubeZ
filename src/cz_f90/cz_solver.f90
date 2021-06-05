@@ -458,7 +458,7 @@ do j=jst,jed
 do i=ist,ied
 
 
-!NEC$ IVDEP
+
 
 do k=kst+mod(i+j+kp,2), ked, 2
 
@@ -610,7 +610,7 @@ s = 2**(pn-1)
 
 
 
-!NEC$ IVDEP
+
 
 do k = kst, kst+s-1
 kl = max(k-s, kst-1)
@@ -787,7 +787,7 @@ s = 2**(pn-2)
 
 
 
-!NEC$ IVDEP
+
 
 
 do k = kst, kst+s-1
@@ -995,7 +995,7 @@ s = 2**(pn-1)
 
 
 
-!NEC$ IVDEP
+
 
 do k = kst, kst+s-1 ! 2, 2+256-1=257
 cc1 = c(k)
@@ -1170,7 +1170,7 @@ sq = 2**(pn-2)
 
 
 
-!NEC$ IVDEP
+
 
 
 do k = kst, kst+sq-1 ! 2, 2+256-1=257
@@ -1384,7 +1384,7 @@ sq = 2**(pn-2)
 
 
 
-!NEC$ IVDEP
+
 
 do k = kst, kst+sq-1
 kl = k + sq
@@ -1600,7 +1600,7 @@ sq = 2**(pn-1)
 
 
 
-!NEC$ IVDEP
+
 
 
 do k = kst, kst+sq-1 ! 2, 2+256-1=257
