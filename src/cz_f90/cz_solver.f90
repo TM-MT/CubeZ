@@ -456,8 +456,8 @@ flop = flop + 18.0d0*0.5d0  &
 
 do j=jst,jed
 do i=ist,ied
-!dir$ vector aligned
-!dir$ simd
+
+
 !NEC$ IVDEP
 !pgi$ vector
 do k=kst+mod(i+j+kp,2), ked, 2
@@ -561,8 +561,8 @@ end do
 c(ked) = 0.0
 
 ! Source
-!dir$ vector aligned
-!dir$ simd
+
+
 do k = kst, ked
 d(k) = (   ( x(k, i  , j-1)        &
        +     x(k, i  , j+1)        &
@@ -581,8 +581,8 @@ d(ked) = ( d(ked) + x(ked+1, i, j) * r ) * msk(ked, i, j)
 do p=1, pn-1
 s = 2**(p-1)
 
-!dir$ vector aligned
-!dir$ simd
+
+
 do k = kst, ked
 kl = max(k-s, kst-1)
 kr = min(k+s, ked+1)
@@ -594,8 +594,8 @@ c1(k) =  -e * cp * c(kr)
 d1(k) =   e * ( d(k) - ap * d(kl) - cp * d(kr) )
 end do
 
-!dir$ vector aligned
-!dir$ simd
+
+
 do k = kst, ked
 a(k) = a1(k)
 c(k) = c1(k)
@@ -608,8 +608,8 @@ end do ! p反復
 ! 最終段の反転
 s = 2**(pn-1)
 
-!dir$ vector aligned
-!dir$ simd
+
+
 !NEC$ IVDEP
 !$acc loop independent
 do k = kst, kst+s-1
@@ -633,8 +633,8 @@ end do
 
 
 ! Relaxation
-!dir$ vector aligned
-!dir$ simd
+
+
 !$acc loop reduction(+:res)
 do k = kst, ked
 pp =   x(k, i, j)
@@ -733,8 +733,8 @@ c(ked) = 0.0
 c(ked+1) = 0.0
 
 ! Source
-!dir$ vector aligned
-!dir$ simd
+
+
 do k = kst, ked
 d(k) = (   ( x(k, i  , j-1)        &
 +     x(k, i  , j+1)        &
@@ -756,8 +756,8 @@ d(ked) = ( d(ked) + x(ked+1, i, j) * r ) * msk(ked, i, j)
 do p=1, pn-2
 s = 2**(p-1)
 
-!dir$ vector aligned
-!dir$ simd
+
+
 !pgi$ ivdep
 do k = kst, ked
 kl = max(k-s, kst-1)
@@ -770,8 +770,8 @@ c1(k) =  -e * cp * c(kr)
 d1(k) =   e * ( d(k) - ap * d(kl) - cp * d(kr) )
 end do
 
-!dir$ vector aligned
-!dir$ simd
+
+
 do k = kst, ked
 a(k) = a1(k)
 c(k) = c1(k)
@@ -785,8 +785,8 @@ end do ! p反復
 s = 2**(pn-2)
 
 
-!dir$ vector aligned
-!dir$ simd
+
+
 !NEC$ IVDEP
 !pgi$ ivdep
 !$acc loop independent
@@ -848,8 +848,8 @@ end do
 
 
 ! Relaxation
-!dir$ vector aligned
-!dir$ simd
+
+
 !pgi$ ivdep
 !$acc loop reduction(+:res1)
 do k = kst, ked
@@ -948,8 +948,8 @@ end do
 !c(ked) = 0.0
 
 ! Source
-!dir$ vector aligned
-!dir$ simd
+
+
 do k = kst, ked
 d(k) = (   ( x(k, i  , j-1)        &
 +     x(k, i  , j+1)        &
@@ -967,8 +967,8 @@ d(ked) = ( d(ked) + x(ked+1, i, j) * r ) * msk(ked, i, j)
 do p=1, pn-1
 s = 2**(p-1)
 
-!dir$ vector aligned
-!dir$ simd
+
+
 !pgi$ ivdep
 do k = kst, ked
 ap = a(k)
@@ -979,8 +979,8 @@ c1(k) =  -e * cp * c(k+s)
 d1(k) =   e * ( d(k) - ap * d(k-s) - cp * d(k+s) )
 end do
 
-!dir$ vector aligned
-!dir$ simd
+
+
 do k = kst, ked
 a(k) = a1(k)
 c(k) = c1(k)
@@ -993,8 +993,8 @@ end do ! p反復
 ! 最終段の反転 512のとき pn=9, s=256
 s = 2**(pn-1)
 
-!dir$ vector aligned
-!dir$ simd
+
+
 !NEC$ IVDEP
 !pgi$ ivdep
 do k = kst, kst+s-1 ! 2, 2+256-1=257
@@ -1016,8 +1016,8 @@ end do
 
 
 ! Relaxation
-!dir$ vector aligned
-!dir$ simd
+
+
 !pgi$ ivdep
 do k = kst, ked
 pp =   x(k, i, j)
@@ -1122,8 +1122,8 @@ c(k) = 0.0
 end do
 
 ! Source
-!dir$ vector aligned
-!dir$ simd
+
+
 do k = kst, ked
 d(k) = (   ( x(k, i  , j-1)        &
 +     x(k, i  , j+1)        &
@@ -1142,8 +1142,8 @@ d(ked) = ( d(ked) + x(ked+1, i, j) * r ) * msk(ked, i, j)
 do p=1, pn-2
 sq = 2**(p-1)
 
-!dir$ vector aligned
-!dir$ simd
+
+
 !pgi$ ivdep
 do k = kst, ked
 ap = a(k)
@@ -1154,8 +1154,8 @@ c1(k) =   -e * cp * c(k+sq)
 d1(k) =   e * ( d(k) - ap * d(k-sq) - cp * d(k+sq) )
 end do
 
-!dir$ vector aligned
-!dir$ simd
+
+
 do k = kst, ked
 a(k) = a1(k)
 c(k) = c1(k)
@@ -1168,8 +1168,8 @@ end do ! p反復
 ! 最終段の反転 512のとき pn=9, sq=256
 sq = 2**(pn-2)
 
-!dir$ vector aligned
-!dir$ simd
+
+
 !NEC$ IVDEP
 !pgi$ ivdep
 !$acc loop independent
@@ -1223,8 +1223,8 @@ end do
 
 
 ! Relaxation
-!dir$ vector aligned
-!dir$ simd
+
+
 !pgi$ ivdep
 !$acc loop reduction(+:res1)
 do k = kst, ked
@@ -1337,8 +1337,8 @@ c(k) = 0.0
 end do
 
 ! Source
-!dir$ vector aligned
-!dir$ simd
+
+
 do k = kst, ked
 d(k) = (   ( x(k, i  , j-1)        &
 +     x(k, i  , j+1)        &
@@ -1357,8 +1357,8 @@ d(ked) = ( d(ked) + x(ked+1, i, j) * r ) * msk(ked, i, j)
 do p=1, pn-2
 sq = 2**(p-1)
 
-!dir$ vector aligned
-!dir$ simd
+
+
 do k = kst, ked
 ap = a(k)
 cp = c(k)
@@ -1368,8 +1368,8 @@ c1(k) =   -e * cp * c(k+sq)
 d1(k) =   e * ( d(k) - ap * d(k-sq) - cp * d(k+sq) )
 end do
 
-!dir$ vector aligned
-!dir$ simd
+
+
 do k = kst, ked
 a(k) = a1(k)
 c(k) = c1(k)
@@ -1382,8 +1382,8 @@ end do ! p反復
 ! 最終段の反転
 sq = 2**(pn-2)
 
-!dir$ vector aligned
-!dir$ simd
+
+
 !NEC$ IVDEP
 !$acc loop independent
 do k = kst, kst+sq-1
@@ -1436,8 +1436,8 @@ end do
 
 
 ! Relaxation
-!dir$ vector aligned
-!dir$ simd
+
+
 !$acc loop reduction(+:res1)
 do k = kst, ked
 pp =   x(k, i, j)
@@ -1571,8 +1571,8 @@ d(ked) = ( d(ked) + x(ked+1, i, j) * r ) * msk(ked, i, j)
 do p=1, pn-1
 sq = 2**(p-1)
 
-!dir$ vector aligned
-!dir$ simd
+
+
 !pgi$ ivdep
 !$acc loop independent
 do k = kst, ked
@@ -1584,8 +1584,8 @@ c1(k) =   -e * cp * c(k+sq)
 d1(k) =   e * ( d(k) - ap * d(k-sq) - cp * d(k+sq) )
 end do
 
-!dir$ vector aligned
-!dir$ simd
+
+
 do k = kst, ked
 a(k) = a1(k)
 c(k) = c1(k)
@@ -1598,8 +1598,8 @@ end do ! p反復
 ! 最終段の反転 512のとき pn=9, sq=256
 sq = 2**(pn-1)
 
-!dir$ vector aligned
-!dir$ simd
+
+
 !NEC$ IVDEP
 !pgi$ ivdep
 !$acc loop independent
@@ -1617,8 +1617,8 @@ end do
 
 
 ! Relaxation
-!dir$ vector aligned
-!dir$ simd
+
+
 !pgi$ ivdep
 !$acc loop reduction(+:res1)
 do k = kst, ked
