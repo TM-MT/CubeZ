@@ -577,7 +577,7 @@ d(ked) = ( d(ked) + x(ked+1, i, j) * r ) * msk(ked, i, j)
 
 
 ! PCR  最終段の一つ手前で停止
-!$acc loop seq
+
 do p=1, pn-1
 s = 2**(p-1)
 
@@ -611,7 +611,7 @@ s = 2**(pn-1)
 
 
 !NEC$ IVDEP
-!$acc loop independent
+
 do k = kst, kst+s-1
 kl = max(k-s, kst-1)
 kr = min(k+s, ked+1)
@@ -635,7 +635,7 @@ end do
 ! Relaxation
 
 
-!$acc loop reduction(+:res)
+
 do k = kst, ked
 pp =   x(k, i, j)
 dp = ( d1(k) - pp ) * omg * msk(k, i, j)
@@ -752,7 +752,7 @@ d(ked) = ( d(ked) + x(ked+1, i, j) * r ) * msk(ked, i, j)
 
 
 ! PCR  最終段の一つ手前で停止
-!$acc loop seq
+
 do p=1, pn-2
 s = 2**(p-1)
 
@@ -789,7 +789,7 @@ s = 2**(pn-2)
 
 !NEC$ IVDEP
 !pgi$ ivdep
-!$acc loop independent
+
 do k = kst, kst+s-1
 kl = min(k+  s, ked+1)
 km = min(k+2*s, ked+1)
@@ -851,7 +851,7 @@ end do
 
 
 !pgi$ ivdep
-!$acc loop reduction(+:res1)
+
 do k = kst, ked
 pp =   x(k, i, j)
 dp = ( d1(k) - pp ) * omg * msk(k, i, j)
@@ -1138,7 +1138,7 @@ d(ked) = ( d(ked) + x(ked+1, i, j) * r ) * msk(ked, i, j)
 
 
 ! PCR  最終段の2つ手前で停止
-!$acc loop seq
+
 do p=1, pn-2
 sq = 2**(p-1)
 
@@ -1172,7 +1172,7 @@ sq = 2**(pn-2)
 
 !NEC$ IVDEP
 !pgi$ ivdep
-!$acc loop independent
+
 do k = kst, kst+sq-1 ! 2, 2+256-1=257
 kl = k + sq
 km = k + 2*sq
@@ -1226,7 +1226,7 @@ end do
 
 
 !pgi$ ivdep
-!$acc loop reduction(+:res1)
+
 do k = kst, ked
 pp =   x(k, i, j)
 dp = ( d1(k) - pp ) * omg * msk(k, i, j)
@@ -1353,7 +1353,7 @@ d(ked) = ( d(ked) + x(ked+1, i, j) * r ) * msk(ked, i, j)
 
 
 ! PCR  最終段の2つ手前で停止
-!$acc loop seq
+
 do p=1, pn-2
 sq = 2**(p-1)
 
@@ -1385,7 +1385,7 @@ sq = 2**(pn-2)
 
 
 !NEC$ IVDEP
-!$acc loop independent
+
 do k = kst, kst+sq-1
 kl = k + sq
 km = k + 2*sq
@@ -1438,7 +1438,7 @@ end do
 ! Relaxation
 
 
-!$acc loop reduction(+:res1)
+
 do k = kst, ked
 pp =   x(k, i, j)
 dp = ( d1(k) - pp ) * omg * msk(k, i, j)
@@ -1567,14 +1567,14 @@ d(ked) = ( d(ked) + x(ked+1, i, j) * r ) * msk(ked, i, j)
 
 
 ! PCR  最終段の一つ手前で停止
-!$acc loop seq
+
 do p=1, pn-1
 sq = 2**(p-1)
 
 
 
 !pgi$ ivdep
-!$acc loop independent
+
 do k = kst, ked
 ap = a(k)
 cp = c(k)
@@ -1602,7 +1602,7 @@ sq = 2**(pn-1)
 
 !NEC$ IVDEP
 !pgi$ ivdep
-!$acc loop independent
+
 do k = kst, kst+sq-1 ! 2, 2+256-1=257
 cc1 = c(k)
 aa2 = a(k+sq)
@@ -1620,7 +1620,7 @@ end do
 
 
 !pgi$ ivdep
-!$acc loop reduction(+:res1)
+
 do k = kst, ked
 pp =   x(k, i, j)
 dp = ( d1(k) - pp ) * omg * msk(k, i, j)
