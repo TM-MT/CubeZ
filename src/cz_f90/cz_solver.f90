@@ -459,7 +459,7 @@ do i=ist,ied
 
 
 !NEC$ IVDEP
-!pgi$ vector
+
 do k=kst+mod(i+j+kp,2), ked, 2
 
   pp = p(k,i,j)
@@ -758,7 +758,7 @@ s = 2**(p-1)
 
 
 
-!pgi$ ivdep
+
 do k = kst, ked
 kl = max(k-s, kst-1)
 kr = min(k+s, ked+1)
@@ -788,7 +788,7 @@ s = 2**(pn-2)
 
 
 !NEC$ IVDEP
-!pgi$ ivdep
+
 
 do k = kst, kst+s-1
 kl = min(k+  s, ked+1)
@@ -850,7 +850,7 @@ end do
 ! Relaxation
 
 
-!pgi$ ivdep
+
 
 do k = kst, ked
 pp =   x(k, i, j)
@@ -969,7 +969,7 @@ s = 2**(p-1)
 
 
 
-!pgi$ ivdep
+
 do k = kst, ked
 ap = a(k)
 cp = c(k)
@@ -996,7 +996,7 @@ s = 2**(pn-1)
 
 
 !NEC$ IVDEP
-!pgi$ ivdep
+
 do k = kst, kst+s-1 ! 2, 2+256-1=257
 cc1 = c(k)
 aa2 = a(k+s)
@@ -1018,7 +1018,7 @@ end do
 ! Relaxation
 
 
-!pgi$ ivdep
+
 do k = kst, ked
 pp =   x(k, i, j)
 dp = ( d1(k) - pp ) * omg * msk(k, i, j)
@@ -1144,7 +1144,7 @@ sq = 2**(p-1)
 
 
 
-!pgi$ ivdep
+
 do k = kst, ked
 ap = a(k)
 cp = c(k)
@@ -1171,7 +1171,7 @@ sq = 2**(pn-2)
 
 
 !NEC$ IVDEP
-!pgi$ ivdep
+
 
 do k = kst, kst+sq-1 ! 2, 2+256-1=257
 kl = k + sq
@@ -1225,7 +1225,7 @@ end do
 ! Relaxation
 
 
-!pgi$ ivdep
+
 
 do k = kst, ked
 pp =   x(k, i, j)
@@ -1573,7 +1573,7 @@ sq = 2**(p-1)
 
 
 
-!pgi$ ivdep
+
 
 do k = kst, ked
 ap = a(k)
@@ -1601,7 +1601,7 @@ sq = 2**(pn-1)
 
 
 !NEC$ IVDEP
-!pgi$ ivdep
+
 
 do k = kst, kst+sq-1 ! 2, 2+256-1=257
 cc1 = c(k)
@@ -1619,7 +1619,7 @@ end do
 ! Relaxation
 
 
-!pgi$ ivdep
+
 
 do k = kst, ked
 pp =   x(k, i, j)
