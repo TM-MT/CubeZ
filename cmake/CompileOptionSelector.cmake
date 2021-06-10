@@ -158,6 +158,11 @@ macro(checkOpenMP)
       set(OpenMP_CXX_FLAGS "-mp")
       set(OpenMP_Fortran_FLAGS "-mp")
 
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+      set(OpenMP_C_FLAGS "-fopenmp")
+      set(OpenMP_CXX_FLAGS "-fopenmp=libomp")
+      set(OpenMP_Fortran_FLAGS "-fopenmp")
+
     else()
       find_package(OpenMP REQUIRED)
     endif()
